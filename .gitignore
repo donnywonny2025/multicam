@@ -1,0 +1,15 @@
+# Ignore media files
+*.MP4
+*.mp4
+*.WAV
+*.wav
+*.json
+*.xml
+*.raw
+
+# OS generated files
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
