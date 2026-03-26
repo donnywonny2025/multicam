@@ -16,6 +16,14 @@ If you ever need to reset or resume this specific project, these are the hardcod
 *   **autocut_intelligent.py (v3)**: The "Gold Master." 172 clever cuts. Great for professional, steady pacing.
 *   **autocut_dynamic.py (v5)**: The "High Energy" cut. 349 cuts. Includes reaction padding (laughs) and name-mention triggers.
 
+## 🧠 The Tech Stack (How it Works)
+This system follows a "Signal-to-Story" pipeline across four layers:
+
+1.  **The "Ears" (Waveform Sync)**: Using **FFT Cross-Correlation** (`xcorr_fast.py`). It listens to the actual sound waves to compute frame-accurate offsets between all cameras and the master mic. This is the "Anchor."
+2.  **The "Brain" (Transcription)**: Using **Whisper AI** (`full_master_transcribe.py`). It transcribes the master audio to get word-level timestamps. This provides the "Meaning" (questions, names, laughs).
+3.  **The "Editor" (Intelligence Fusion)**: Using the **Python v3/v5 Logic**. It fuses the sync offsets with the transcript data. It chooses the camera based on energy, but uses the transcript to override for professional touches (anticipatory cuts, reaction padding).
+4.  **The "Output" (XMEML Assembly)**: Using **XMEML v4**. It writes a map for Premiere Pro telling it exactly where to cut and which clips to enable, while keeping the timeline 100% non-destructive.
+
 ## 🚀 How to Run
 1.  **Sync**: Ensure all offsets are calculated via `xcorr_fast.py`.
 2.  **Transcribe**: Use `full_master_transcribe.py` to generate the `.json` context.
