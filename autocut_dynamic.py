@@ -284,29 +284,46 @@ for trk_idx, (trk_id, spk_flag, _) in enumerate(track_configs):
         L.append(f'            <start>{tl_s_f}</start><end>{tl_e_f}</end>')
         L.append(f'            <enabled>{"TRUE" if is_active else "FALSE"}</enabled>')
         L.append(f'            <in>{in_f}</in><out>{out_f}</out>')
-        L.append(f'            <file id="{fid}"><name>{name}</name><pathurl>{url}</pathurl><media><video><samplecharacteristics><width>3840</width><height>2160</height></samplecharacteristics></video><audio><samplecharacteristics><depth>16</depth><samplerate>48000</samplerate></samplecharacteristics><channelcount>2</channelcount></audio></media></file>')
+        L.append(f'            <file id="{fid}">')
+        L.append(f'                <name>{name}</name>')
+        L.append(f'                <pathurl>{url}</pathurl>')
+        L.append('                <media>')
+        L.append('                    <video><samplecharacteristics><width>3840</width><height>2160</height></samplecharacteristics></video>')
+        L.append('                    <audio><samplecharacteristics><depth>16</depth><samplerate>48000</samplerate></samplecharacteristics><channelcount>2</channelcount></audio>')
+        L.append('                </media>')
+        L.append('            </file>')
         L.append('          </clipitem>')
         clip_counter += 1
     L.append('        </track>')
 L.append('      </video>')
 
+# AUDIO TRACKS
 L.append('      <audio>')
-for mic_idx, (m_id, m_path) in enumerate([("MIC1.WAV", MIC1_PATH), ("MIC2.WAV", MIC1_PATH)]): # Note: MIC2 is actually MIC1 track 2 in our setup sometimes, but here we use the specific paths
-    # Re-using logic from v3 for simplicity
+L.append('        <numchannels>2</numchannels>')
+L.append('        <format><samplecharacteristics><depth>16</depth><samplerate>48000</samplerate></samplecharacteristics></format>')
+
+for mic_idx, (m_id, m_path) in enumerate([("MIC1.WAV", MIC1_PATH), ("MIC2.WAV", MIC2_PATH)]):
     m_dur_s, m_dur_f = ffprobe_frames(m_path)
     url = "file://localhost" + quote(m_path)
     L.append('        <track>')
     L.append(f'          <clipitem id="mic_{mic_idx}">')
-    L.append(f'            <name>Master Mic {mic_idx+1}</name>')
+    L.append(f'            <name>{m_id}</name>')
     L.append(f'            <duration>{m_dur_f}</duration>')
     L.append('            <rate><timebase>24</timebase><ntsc>TRUE</ntsc></rate>')
     L.append(f'            <start>0</start><end>{m_dur_f}</end>')
     L.append(f'            <in>0</in><out>{m_dur_f}</out>')
-    L.append(f'            <file id="mic_file_{mic_idx}"><name>{m_id}</name><pathurl>{url}</pathurl><media><audio><samplecharacteristics><depth>16</depth><samplerate>48000</samplerate></samplecharacteristics><channelcount>2</channelcount></audio></media></file>')
+    L.append(f'            <file id="file_mic_{mic_idx}">')
+    L.append(f'                <name>{m_id}</name>')
+    L.append(f'                <pathurl>{url}</pathurl>')
+    L.append('                <media><audio><samplecharacteristics><depth>16</depth><samplerate>48000</samplerate></samplecharacteristics><channelcount>2</channelcount></audio></media>')
+    L.append('            </file>')
     L.append('          </clipitem>')
     L.append('        </track>')
+
 L.append('      </audio>')
-L.append('    </media></sequence></xmeml>')
+L.append('    </media>')
+L.append('  </sequence>')
+L.append('</xmeml>')
 
 xml = "\n".join(L)
 out_comp = f"{BASE}/Emily_v5_DYNAMIC_CUT.xml"
