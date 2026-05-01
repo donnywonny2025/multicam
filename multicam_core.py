@@ -9,13 +9,34 @@ from urllib.parse import quote
 # ============================================================
 # TIME & FRAME HELPERS
 # ============================================================
-def sec_to_frames(sec):
-    return int(round(sec * 23.976))
+def sec_to_frames(sec, fps=23.976):
+    if abs(fps - 23.976) < 0.1: tb, ntsc = 24, "TRUE"
+    elif abs(fps - 29.97) < 0.1: tb, ntsc = 30, "TRUE"
+    elif abs(fps - 30.0) < 0.1: tb, ntsc = 30, "FALSE"
+    else: tb, ntsc = int(round(fps)), "FALSE"
+    return int(round(sec * fps))
 
-def ffprobe_frames(path):
-    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path], capture_output=True, text=True)
-    sec = float(r.stdout.strip())
-    return sec, int(round(sec * 23.976))
+def ffprobe_metadata(path):
+    """Returns (duration_s, fps)"""
+    r = subprocess.run([
+        "ffprobe", "-v", "error", "-select_streams", "v:0", 
+        "-show_entries", "format=duration:stream=r_frame_rate", 
+        "-of", "csv=p=0", path
+    ], capture_output=True, text=True)
+    lines = r.stdout.strip().split('\n')
+    if len(lines) < 2:
+        # Might be audio only
+        r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path], capture_output=True, text=True)
+        return float(r.stdout.strip()), 23.976
+    
+    fps_raw = lines[0] # Stream 0 r_frame_rate
+    dur_s = float(lines[1]) # Format duration
+    if '/' in fps_raw:
+        n, d = fps_raw.split('/')
+        fps = float(n) / float(d)
+    else:
+        fps = float(fps_raw)
+    return dur_s, fps
 
 # ============================================================
 # AUDIO EXTRACTION
@@ -65,7 +86,8 @@ def generate_audio_tracks(mic_configs):
     L.append('        <format><samplecharacteristics><depth>16</depth><samplerate>48000</samplerate></samplecharacteristics></format>')
     
     for mic_idx, (m_id, m_path) in enumerate(mic_configs):
-        m_dur_s, m_dur_f = ffprobe_frames(m_path)
+        m_dur_s, _ = ffprobe_metadata(m_path)
+        m_dur_f = sec_to_frames(m_dur_s, 23.976) # Timeline default
         url = "file://localhost" + quote(m_path)
         L.append('        <track>')
         L.append(f'          <clipitem id="mic_{mic_idx}">')

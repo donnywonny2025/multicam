@@ -2,14 +2,18 @@
 
 This repository contains the full "Software 2.0" framework for the Emily interview series. It uses a combination of audio wave-energy and transcript intelligence to generate a high-end, 3-track Premiere Pro multicam edit.
 
-## 📁 The Emily "Formula" (Current Settings)
-If you ever need to reset or resume this specific project, these are the hardcoded constants:
+## 📁 Project Architecture & Multi-Episode Support
+While the original framework was built for the Emily interview, it has been successfully generalized and adapted into a scalable 3-track architecture. The framework now natively supports:
 
-### 1. File Mappings
-*   **V1 (Wide)**: `C9124.MP4` (Offset: -9.0102s)
-*   **V2 (Host - Lillani)**: `C0003.MP4` (-4.5544s) / `C0004.MP4` (1792.33s)
-*   **V3 (Guest - Emily)**: `C0001.MP4` (-2.2166s) / `C0002.MP4` (1800.43s)
-*   **Audio**: `MIC1.WAV` (Lillani) / `MIC2.WAV` (Emily)
+1. **Emily Episode** (2-track hybrid)
+2. **Sonya Hollins Episode** (3-track discrete: Wide, Host, Guest)
+3. **Leilani's Friends Episode** (3-track discrete with Multi-Guest indexing)
+
+### 1. The 3-Track Mapping Standard
+*   **V1 (Wide)**: Usually `Cam 1` (e.g. C9124, C9119)
+*   **V2 (Host)**: Usually `Cam 2`
+*   **V3 (Guest(s))**: Usually `Cam 3`
+*   **Audio**: Energy-based dominance tracking mapped to `MIC1.WAV` (Host) and `MIC2.WAV` (Guest/Friends).
 
 ### 2. Architecture
 *   **multicam_core.py**: The "Engine." Contains the logic for audio extraction, frame calculations, and the Premiere XML structure. **Do not modify this unless you want to change the foundational sync engine.**
